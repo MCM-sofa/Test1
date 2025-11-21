@@ -303,7 +303,7 @@ with col2:
                 st.error(f"❌ Erreur lors de la génération : {str(e)}")
                 st.exception(e)  # Affiche la trace complète pour le debug
     
-    # Bouton PDF
+# Bouton PDF
     st.markdown("---")
     if st.button("📄 Générer le Devis PDF", use_container_width=True):
         if not nom_client:
@@ -311,6 +311,30 @@ with col2:
         else:
             with st.spinner("Création du PDF en cours..."):
                 try:
+                    # 1. Régénérer le schéma spécifiquement pour le PDF
+                    # On le fait ici pour être sûr d'avoir la dernière version configurée
+                    fig = generer_schema_canape(
+                        type_canape=type_canape,
+                        tx=tx, ty=ty, tz=tz,
+                        profondeur=profondeur,
+                        acc_left=acc_left,
+                        acc_right=acc_right,
+                        acc_bas=acc_bas,
+                        dossier_left=dossier_left,
+                        dossier_bas=dossier_bas,
+                        dossier_right=dossier_right,
+                        meridienne_side=meridienne_side,
+                        meridienne_len=meridienne_len,
+                        coussins=type_coussins
+                    )
+                   
+                    # 2. Sauvegarder la figure dans un buffer mémoire (BytesIO)
+                    img_buffer = BytesIO()
+                    fig.savefig(img_buffer, format='png', bbox_inches='tight', dpi=150)
+                    img_buffer.seek(0) # Remettre le curseur au début du fichier
+                    plt.close(fig) # Fermer la figure pour libérer la mémoire
+                   
+                    # 3. Configuration (Code existant)
                     config = {
                         'type_canape': type_canape,
                         'dimensions': {'tx': tx, 'ty': ty, 'tz': tz, 'profondeur': profondeur},
@@ -329,7 +353,8 @@ with col2:
                         },
                         'client': {'nom': nom_client, 'email': email_client}
                     }
-                    
+                   
+                    # 4. Calcul prix (Code existant)
                     prix_details = calculer_prix_total(
                         type_canape=type_canape, tx=tx, ty=ty, tz=tz,
                         profondeur=profondeur, type_coussins=type_coussins,
@@ -340,21 +365,23 @@ with col2:
                         nb_traversins_supp=nb_traversins_supp,
                         has_surmatelas=has_surmatelas, has_meridienne=has_meridienne
                     )
-                    
-                    pdf_buffer = generer_pdf_devis(config, prix_details)
-                    
+                   
+                    # 5. Génération PDF avec l'image (AJOUT de l'argument schema_image)
+                    pdf_buffer = generer_pdf_devis(config, prix_details, schema_image=img_buffer)
+                   
                     st.download_button(
                         label="⬇️ Télécharger le Devis PDF",
                         data=pdf_buffer,
                         file_name=f"devis_canape_{nom_client.replace(' ', '_')}.pdf",
                         mime="application/pdf"
                     )
-                    
+                   
                     st.success("✅ PDF généré avec succès !")
-                    
+                   
                 except Exception as e:
                     st.error(f"❌ Erreur : {str(e)}")
                     st.exception(e)
+
 
 # FOOTER
 st.markdown("---")
