@@ -5,7 +5,7 @@ Utilise le module canape_pricing.py
 """
 
 import streamlit as st
-from canape_pricing import CanapePricing
+from pricing import CanapePricing
 
 # Configuration de la page
 st.set_page_config(
