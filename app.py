@@ -34,7 +34,8 @@ def generer_schema_canape(type_canape, tx, ty, tz, profondeur,
     Génère le schéma du canapé en utilisant les fonctions de canapematplot.py
     et retourne une figure matplotlib
     """
-    fig = plt.figure(figsize=(12, 8))
+    # La figure principale est créée par canapematplot ; inutile d'en créer une ici.
+    # fig = plt.figure(figsize=(12, 8))
     
     try:
         if "Simple" in type_canape:
@@ -136,6 +137,8 @@ def generer_schema_canape(type_canape, tx, ty, tz, profondeur,
         
         # Récupérer la figure actuelle créée par matplotlib
         fig = plt.gcf()
+        # Agrandir la figure pour une meilleure résolution dans le PDF
+        fig.set_size_inches(10, 7.5, forward=True)
         return fig
         
     except Exception as e:
@@ -330,7 +333,7 @@ with col2:
                    
                     # 2. Sauvegarder la figure dans un buffer mémoire (BytesIO)
                     img_buffer = BytesIO()
-                    fig.savefig(img_buffer, format='png', bbox_inches='tight', dpi=150)
+                    fig.savefig(img_buffer, format='png', bbox_inches='tight', dpi=300)
                     img_buffer.seek(0) # Remettre le curseur au début du fichier
                     plt.close(fig) # Fermer la figure pour libérer la mémoire
                    
