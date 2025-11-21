@@ -34,8 +34,7 @@ def generer_schema_canape(type_canape, tx, ty, tz, profondeur,
     Génère le schéma du canapé en utilisant les fonctions de canapematplot.py
     et retourne une figure matplotlib
     """
-    # La figure principale est créée par canapematplot ; inutile d'en créer une ici.
-    # fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(12, 8))
     
     try:
         if "Simple" in type_canape:
@@ -137,7 +136,6 @@ def generer_schema_canape(type_canape, tx, ty, tz, profondeur,
         
         # Récupérer la figure actuelle créée par matplotlib
         fig = plt.gcf()
-        # Agrandir la figure pour une meilleure résolution dans le PDF
         fig.set_size_inches(10, 7.5, forward=True)
         return fig
         
@@ -369,8 +367,12 @@ with col2:
                         has_surmatelas=has_surmatelas, has_meridienne=has_meridienne
                     )
                    
-                    # 5. Génération PDF avec l'image (AJOUT de l'argument schema_image)
-                    pdf_buffer = generer_pdf_devis(config, prix_details, schema_image=img_buffer)
+                    # 5. Génération PDF avec l'image (si la version de pdf_generator le supporte)
+                    try:
+                        pdf_buffer = generer_pdf_devis(config, prix_details, schema_image=img_buffer)
+                    except TypeError:
+                        # Compatibilité avec une version plus ancienne de pdf_generator sans paramètre schema_image
+                        pdf_buffer = generer_pdf_devis(config, prix_details)
                    
                     st.download_button(
                         label="⬇️ Télécharger le Devis PDF",
